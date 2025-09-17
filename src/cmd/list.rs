@@ -1,12 +1,19 @@
-use std::path::PathBuf;
+use std::env;
 
-use crate::{bricks::bricks, cmd::{List, Run}};
+use crate::{
+    bricks::bricks,
+    cmd::{List, Run},
+};
 
 impl Run for List {
     fn run(&self) {
-        let Some(path) = self.dir.clone() else {
+        let Some(path) = self.brick_dirs.clone() else {
             return;
         };
-        println!("{:?}", bricks(&path));
+        for brick in bricks(&path) {
+            println!("{:?}", brick);
+            println!("{:#?}", brick.files());
+            
+        }
     }
 }

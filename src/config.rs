@@ -1,7 +1,6 @@
-use std::{env, path::PathBuf};
+use std::{env, fs, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
-
 
 const ENV_KEY_CONFIG_DIR: &'static str = "CRANE_CONFIG_DIR";
 
@@ -12,15 +11,34 @@ fn config_path_from_env() -> Option<PathBuf> {
 pub fn config_dir() -> PathBuf {
     match config_path_from_env() {
         Some(path) => path,
-        None => PathBuf::from("~/.config/crane")
+        None => PathBuf::from("~/.config/crane"),
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CraneConfig {
-
+    brick_dirs: Vec<PathBuf>,
 }
 
+impl CraneConfig {
+    pub fn new() -> Self {
+        let config_file = config_dir().join("config.toml");
+        if config_file.exists() {
+            if let Ok(parsed_config) = toml::from_str::<CraneConfig>(
+                fs::read_to_string(config_file).unwrap_or_default().as_str(),
+            ) {
+                return parsed_config;
+            }
+        }
+        Self {
+            brick_dirs: vec![config_dir().join("bricks")],
+        }
+    }
+
+    pub fn brick_dirs(&self) -> &[PathBuf] {
+        &self.brick_dirs
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -32,6 +50,9 @@ mod tests {
         unsafe {
             env::set_var(ENV_KEY_CONFIG_DIR, "~/.crane");
         };
-        assert_eq!(format!("{}", config_dir().display()), String::from("~/.crane"))
+        assert_eq!(
+            format!("{}", config_dir().display()),
+            String::from("~/.crane")
+        )
     }
 }
