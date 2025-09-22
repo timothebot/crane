@@ -1,6 +1,7 @@
 use std::{env, path::PathBuf};
 
 use fuzzy_matcher::{FuzzyMatcher, skim::SkimMatcherV2};
+use log::{debug, error, info, warn};
 
 use crate::{
     bricks::{Brick, bricks},
@@ -10,20 +11,36 @@ use crate::{
 
 impl Run for Add {
     fn run(&self) {
-        println!("{:?}", env::current_dir().unwrap());
         let config = CraneConfig::new();
         let brick_dirs = if self.brick_dirs.len() > 0 {
             &self.brick_dirs
         } else {
             &config.brick_dirs().to_vec()
         };
+        debug!(
+            "Checking brick dirs:\n* {}",
+            brick_dirs
+                .iter()
+                .map(|path| path.display().to_string())
+                .collect::<Vec<String>>()
+                .join("\n* ")
+        );
 
         let target_dir = match &self.target_dir {
             Some(dir) => dir,
-            None => &env::current_dir().unwrap()
+            None => &env::current_dir().unwrap(),
         };
 
         let bricks: Vec<Brick> = brick_dirs.iter().map(|dir| bricks(dir)).flatten().collect();
+
+        debug!(
+            "Found bricks:\n* {}",
+            bricks
+                .iter()
+                .map(|brick| brick.name().to_string())
+                .collect::<Vec<String>>()
+                .join("\n* ")
+        );
 
         let matcher = SkimMatcherV2::default();
 
@@ -39,7 +56,11 @@ impl Run for Add {
                 }
             }
             if matches.len() == 1 {
-                add_brick(matches.first().unwrap().0.clone(), &target_dir, self.dry_run);
+                add_brick(
+                    matches.first().unwrap().0.clone(),
+                    &target_dir,
+                    self.dry_run,
+                );
             } else if matches.len() > 1 {
                 multiple_matches_found(brick_query.to_string(), matches);
             } else {
@@ -50,22 +71,27 @@ impl Run for Add {
 }
 
 fn add_brick(brick: Brick, target_dir: &PathBuf, dry_run: bool) {
-    println!("+ | Adding brick '{}'", brick.name());
+    info!("Adding brick '{}'", brick.name());
     for file in brick.files() {
         match file.create(target_dir.clone(), dry_run) {
-            Ok(_) => println!("worked"),
-            Err(err) => println!("{}", err),
+            Ok(_) => {}
+            Err(err) => error!("{}", err),
         }
     }
 }
 
 fn no_matches_found(query: String) {
-    println!("! | Found no possible bricks for '{query}'");
+    error!("No possible bricks found for '{}'", query);
 }
 
 fn multiple_matches_found(query: String, matches: Vec<(Brick, i64)>) {
-    println!("! | Found multiple possible bricks for '{query}'");
-    for (brick, score) in matches {
-        println!("    - {} ({})", brick.name(), score)
-    }
+    warn!(
+        "Multiple possible bricks found for '{}'\n* {}",
+        query,
+        matches
+            .iter()
+            .map(|(brick, score)| format!("{} ({})", brick.name(), score))
+            .collect::<Vec<String>>()
+            .join("\n* ")
+    );
 }

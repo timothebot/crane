@@ -1,4 +1,4 @@
-use std::env;
+use log::info;
 
 use crate::{
     bricks::bricks,
@@ -11,9 +11,8 @@ impl Run for List {
             return;
         };
         for brick in bricks(&path) {
-            println!("{:?}", brick);
-            println!("{:#?}", brick.files());
-            
+            info!("{:?}", brick);
+            info!("{:#?}", brick.files());
         }
     }
 }
