@@ -107,10 +107,10 @@ impl BrickFile {
 
         match self.action {
             FileAction::Replace => {
-                file_util.replace_content(&path, &self.parse_content())?;
+                file_util.replace_content(&target_file, &self.parse_content())?;
             }
             FileAction::Append => {
-                file_util.append_content(&path, &self.parse_content())?;
+                file_util.append_content(&target_file, &self.parse_content())?;
             }
         };
 
