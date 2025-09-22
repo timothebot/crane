@@ -1,0 +1,5 @@
+name = "test"
+
+[[actions]]
+action = "insert_file"
+if_file_exists = "replace"

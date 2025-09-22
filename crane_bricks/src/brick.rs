@@ -1,49 +1,63 @@
-use std::{fs, path::PathBuf};
+use std::{fs, path::{Path, PathBuf}};
 
 use anyhow::anyhow;
-use serde::{Deserialize, Serialize};
+use log::debug;
+use serde::Deserialize;
 
 use crate::{
-    files::BrickFile,
-    utils::{sub_dirs, sub_paths},
+    actions::{Action, ExecuteAction}, context::ActionContext, file_utils::{sub_dirs, sub_paths}
 };
 
 const BRICK_CONFIG_FILE: &'static str = "brick.toml";
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
-pub enum FileAction {
-    #[default]
-    Replace,
-    Append,
-    // Regex {
-    //     regex: String,
-    //     position: After | Replace | Before,
-    // }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Deserialize, Debug, Clone, Default, PartialEq, Eq)]
 pub struct BrickConfig {
     pub name: String,
-    #[serde(default)]
-    pub action: FileAction,
-    // pub requires: Vec<String>
+    pub actions: Vec<Action>,
+}
+
+#[derive(Debug, Clone)]
+pub struct BrickFile {
+    name: String,
+    content: String,
+}
+
+impl BrickFile {
+    pub fn new(name: String, content: String) -> Self {
+        Self {
+            name,
+            content,
+        }
+    }
+    
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+    
+    pub fn content(&self) -> &str {
+        &self.content
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct Brick {
     config: BrickConfig,
-    path: PathBuf,
+    source_path: PathBuf,
 }
 
 impl Brick {
-    pub fn new(name: String, path: PathBuf) -> Self {
+    pub fn new(name: String, source_path: PathBuf) -> Self {
         Brick {
             config: BrickConfig {
                 name,
                 ..BrickConfig::default()
             },
-            path,
+            source_path,
         }
+    }
+    
+    pub fn new_with_config(config: BrickConfig, source_path: PathBuf) -> Self {
+        Brick { config, source_path }
     }
 
     pub fn name(&self) -> &str {
@@ -51,11 +65,14 @@ impl Brick {
     }
 
     pub fn path(&self) -> &PathBuf {
-        &self.path
+        &self.source_path
     }
 
-    pub fn action(&self) -> &FileAction {
-        &self.config.action
+    pub fn execute(&self, context: &ActionContext, cwd: &Path) -> anyhow::Result<()> {
+        for action in &self.config.actions {
+            action.execute(context, &self, cwd)?;
+        }
+        Ok(())
     }
 
     /// Returns a list of all files that
@@ -72,7 +89,7 @@ impl Brick {
                 }
                 let content = fs::read_to_string(path).unwrap_or_default();
 
-                Some(BrickFile::new(name, content, self.action().clone()))
+                Some(BrickFile::new(name, content))
             })
             .collect()
     }
@@ -84,14 +101,16 @@ impl TryFrom<PathBuf> for Brick {
     fn try_from(value: PathBuf) -> Result<Self, Self::Error> {
         let config_file = value.join(BRICK_CONFIG_FILE);
         if !config_file.exists() {
+            debug!("Brick config file not found at '{:?}'", config_file.display());
             let name = value
                 .as_path()
                 .file_name()
                 .ok_or_else(|| anyhow!("Could not read brick dir name!"))?;
             return Ok(Brick::new(name.display().to_string(), value));
         }
+        debug!("Creating Brick from config file");
         let config: BrickConfig = toml::from_str(fs::read_to_string(config_file)?.as_str())?;
-        Ok(Brick::new(config.name, value))
+        Ok(Brick::new_with_config(config, value))
     }
 }
 
