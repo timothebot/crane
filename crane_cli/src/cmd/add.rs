@@ -3,8 +3,8 @@ use std::{env, path::PathBuf};
 use fuzzy_matcher::{FuzzyMatcher, skim::SkimMatcherV2};
 use log::{debug, error, info, warn};
 
+use crane_bricks::brick::{Brick, bricks};
 use crate::{
-    bricks::{Brick, bricks},
     cmd::{Add, Run},
     config::CraneConfig,
 };
@@ -71,13 +71,8 @@ impl Run for Add {
 }
 
 fn add_brick(brick: Brick, target_dir: &PathBuf, dry_run: bool) {
-    info!("Adding brick '{}'", brick.name());
-    for file in brick.files() {
-        match file.create(target_dir.clone(), dry_run) {
-            Ok(_) => {}
-            Err(err) => error!("{}", err),
-        }
-    }
+    info!("Adding brick '{}', {}, {:?}", brick.name(), dry_run, target_dir);
+    
 }
 
 fn no_matches_found(query: String) {

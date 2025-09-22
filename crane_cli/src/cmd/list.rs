@@ -1,7 +1,7 @@
 use log::info;
 
+use crane_bricks::brick::bricks;
 use crate::{
-    bricks::bricks,
     cmd::{List, Run},
 };
 
