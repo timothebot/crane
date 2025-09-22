@@ -10,9 +10,9 @@ pub trait Run {
 
 impl Run for CraneCli {
     fn run(&self) {
-        match self {
-            CraneCli::Add(cmd) => cmd.run(),
-            CraneCli::List(cmd) => cmd.run(),
+        match &self.command {
+            CraneCommand::Add(cmd) => cmd.run(),
+            CraneCommand::List(cmd) => cmd.run()
         }
     }
 }

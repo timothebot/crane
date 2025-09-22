@@ -1,10 +1,20 @@
 use std::path::PathBuf;
 
-use clap::{Parser, ValueHint, command};
+use clap::{Parser, Subcommand, ValueHint, command};
+use clap_verbosity::Verbosity;
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
-pub enum CraneCli {
+pub struct CraneCli {
+    #[command(subcommand)]
+    pub command: CraneCommand,
+
+    #[command(flatten)]
+    pub verbose: Verbosity,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum CraneCommand {
     Add(Add),
     List(List),
 }
@@ -20,6 +30,9 @@ pub struct Add {
 
     #[arg(short, long, value_hint=ValueHint::DirPath)]
     pub target_dir: Option<PathBuf>,
+
+    #[arg(short='n', long)]
+    pub dry_run: bool,
 }
 
 /// List all available bricks

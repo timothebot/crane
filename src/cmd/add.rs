@@ -39,7 +39,7 @@ impl Run for Add {
                 }
             }
             if matches.len() == 1 {
-                add_brick(matches.first().unwrap().0.clone(), &target_dir);
+                add_brick(matches.first().unwrap().0.clone(), &target_dir, self.dry_run);
             } else if matches.len() > 1 {
                 multiple_matches_found(brick_query.to_string(), matches);
             } else {
@@ -49,10 +49,10 @@ impl Run for Add {
     }
 }
 
-fn add_brick(brick: Brick, target_dir: &PathBuf) {
+fn add_brick(brick: Brick, target_dir: &PathBuf, dry_run: bool) {
     println!("+ | Adding brick '{}'", brick.name());
     for file in brick.files() {
-        match file.create(target_dir.clone()) {
+        match file.create(target_dir.clone(), dry_run) {
             Ok(_) => println!("worked"),
             Err(err) => println!("{}", err),
         }
