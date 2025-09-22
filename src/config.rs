@@ -4,14 +4,14 @@ use serde::{Deserialize, Serialize};
 
 const ENV_KEY_CONFIG_DIR: &'static str = "CRANE_CONFIG_DIR";
 
-fn config_path_from_env() -> Option<PathBuf> {
-    PathBuf::try_from(env::var(ENV_KEY_CONFIG_DIR).ok()?).ok()
+fn config_path_from_env() -> anyhow::Result<PathBuf> {
+    Ok(PathBuf::try_from(env::var(ENV_KEY_CONFIG_DIR)?)?)
 }
 
 pub fn config_dir() -> PathBuf {
     match config_path_from_env() {
-        Some(path) => path,
-        None => PathBuf::from("~/.config/crane"),
+        Ok(path) => path,
+        Err(_) => PathBuf::from("~/.config/crane"),
     }
 }
 
