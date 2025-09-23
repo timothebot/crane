@@ -3,7 +3,6 @@ name = "test"
 [[actions]]
 sources = ["Test.toml"]
 action = "modify_file"
-type = "append"
+type = "prepend"
 content = "\nserde = \"1\"\n"
 selector = "[dependencies]"
-location = "before"
