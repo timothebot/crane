@@ -23,7 +23,6 @@ use crate::{
 /// type = "append"
 /// content = "\nserde = \"1\""
 /// selector = "[dependencies]"
-/// location = "after"
 /// ```
 ///
 /// ### Result
@@ -43,7 +42,7 @@ pub struct ModifyFileAction {
     #[serde(flatten)]
     pub common: Common,
 
-    /// If the modification should append something next to the
+    /// If the modification should append or prepend text next to the
     /// selector or if it should replace it.
     pub(self) r#type: ModifyType,
 
@@ -52,11 +51,6 @@ pub struct ModifyFileAction {
     /// The content selector for the modification, must be unique.
     /// Can be regex if prefix with "re:".
     pub selector: String,
-
-    /// If the modification should happen "before" or "after" (default)
-    /// the given selector.
-    #[serde(default)]
-    pub(self) location: ModifyLocation,
 }
 
 #[derive(Debug, Deserialize, Default, Clone, PartialEq, Eq)]
@@ -64,15 +58,8 @@ pub struct ModifyFileAction {
 enum ModifyType {
     #[default]
     Append,
+    Prepend,
     Replace,
-}
-
-#[derive(Debug, Deserialize, Default, Clone, PartialEq, Eq)]
-#[serde(rename_all = "snake_case")]
-enum ModifyLocation {
-    #[default]
-    After,
-    Before,
 }
 
 impl ModifyFileAction {
@@ -101,16 +88,14 @@ impl ModifyFileAction {
             // means the index has shifted.
             let modified_index = index + output.len().abs_diff(start_length);
             match &self.r#type {
-                ModifyType::Append => match &self.location {
-                    ModifyLocation::After => {
-                        output.insert_str(
-                            (modified_index + selected.len()).max(0),
-                            &self.content(),
-                        );
-                    }
-                    ModifyLocation::Before => {
-                        output.insert_str(modified_index, &self.content());
-                    }
+                ModifyType::Append => {
+                    output.insert_str(
+                        (modified_index + selected.len()).max(0),
+                        &self.content(),
+                    );
+                },
+                ModifyType::Prepend => {
+                    output.insert_str(modified_index, &self.content());
                 },
                 ModifyType::Replace => {
                     output.replace_range(modified_index..(modified_index + selected.len()).max(0), &self.content());
