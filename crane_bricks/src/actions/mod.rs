@@ -4,6 +4,7 @@ pub mod modify_file;
 
 use std::path::Path;
 
+use log::debug;
 use serde::Deserialize;
 
 use crate::{
@@ -35,9 +36,10 @@ impl ExecuteAction for Action {
         brick: &Brick,
         cwd: &Path,
     ) -> anyhow::Result<()> {
+        debug!("Executing '{}' brick action '{:#?}'", brick.name(), &self);
         match &self {
             Action::InsertFile(action) => action.execute(context, brick, cwd),
-            Action::ModifyFile(_action) => todo!(),
+            Action::ModifyFile(action) => action.execute(context, brick, cwd),
         }
     }
 }
