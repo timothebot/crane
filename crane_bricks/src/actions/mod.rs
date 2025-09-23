@@ -37,7 +37,7 @@ impl ExecuteAction for Action {
     ) -> anyhow::Result<()> {
         match &self {
             Action::InsertFile(action) => action.execute(context, brick, cwd),
-            Action::ModifyFile(action) => todo!(),
+            Action::ModifyFile(_action) => todo!(),
         }
     }
 }

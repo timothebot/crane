@@ -8,7 +8,7 @@ use log::debug;
 use serde::Deserialize;
 
 use crate::{
-    actions::{Action, ExecuteAction},
+    actions::{insert_file::InsertFileAction, Action, ExecuteAction},
     context::ActionContext,
     file_utils::{sub_dirs, sub_paths},
 };
@@ -17,8 +17,22 @@ const BRICK_CONFIG_FILE: &'static str = "brick.toml";
 
 #[derive(Deserialize, Debug, Clone, Default, PartialEq, Eq)]
 pub struct BrickConfig {
-    pub name: String,
-    pub actions: Vec<Action>,
+    name: String,
+    actions: Vec<Action>,
+}
+
+impl BrickConfig {
+    pub fn new(name: String, actions: Vec<Action>) -> Self {
+        Self { name, actions }
+    }
+    
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+    
+    pub fn actions(&self) -> &[Action] {
+        &self.actions
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -52,6 +66,10 @@ impl Brick {
         Brick {
             config: BrickConfig {
                 name,
+                // If no action is configured, InsertFileAction is default
+                actions: vec![
+                    Action::InsertFile(InsertFileAction::default())
+                ],
                 ..BrickConfig::default()
             },
             source_path,
@@ -71,6 +89,10 @@ impl Brick {
 
     pub fn path(&self) -> &PathBuf {
         &self.source_path
+    }
+
+    pub fn config(&self) -> &BrickConfig {
+        &self.config
     }
 
     pub fn execute(&self, context: &ActionContext, cwd: &Path) -> anyhow::Result<()> {
@@ -123,6 +145,7 @@ impl TryFrom<PathBuf> for Brick {
     }
 }
 
+/// Get all bricks in a directory
 pub fn bricks(dir: &PathBuf) -> Vec<Brick> {
     let Ok(dirs) = sub_dirs(dir) else {
         return vec![];
