@@ -11,3 +11,13 @@ brick_dirs = [
     "./bricks"
 ]
 ```
+
+## Aliases
+
+You can define aliases for multiple bricks.
+
+```toml
+[[alias]]
+name = "rust"
+bricks = [ "mit", "rustfmt", "serde" ]
+```
