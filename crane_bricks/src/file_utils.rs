@@ -27,7 +27,11 @@ pub fn sub_paths(dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
         .collect())
 }
 
-pub fn file_create_new(ctx: &ActionContext, path: &Path, content: Option<String>) -> anyhow::Result<()> {
+pub fn file_create_new(
+    ctx: &ActionContext,
+    path: &Path,
+    content: Option<String>,
+) -> anyhow::Result<()> {
     if !ctx.dry_run {
         debug!("Creating new file '{:?}'", path);
         let mut file = File::create_new(path)?;

@@ -3,11 +3,11 @@ use serde::Deserialize;
 use crate::actions::common::Common;
 
 /// Modify a file by inserting content at a specific location.
-/// 
+///
 /// ## Example
-/// 
+///
 /// ### Config
-/// 
+///
 /// ```toml
 /// [[actions]]
 /// # For this action, the name of the files that the modification
@@ -20,15 +20,15 @@ use crate::actions::common::Common;
 /// selector = "[dependencies]"
 /// location = "after"
 /// ```
-/// 
+///
 /// ### Result
-/// 
+///
 /// ```toml
 /// # Before
 /// [dependencies]
 /// crane = "9.9.9"
-/// 
-/// # After 
+///
+/// # After
 /// [dependencies]
 /// serde = "1"
 /// crane = "9.9.9"

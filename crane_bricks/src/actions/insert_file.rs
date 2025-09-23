@@ -57,9 +57,7 @@ impl ExecuteAction for InsertFileAction {
         if !&self.common.sources.is_empty() {
             files = files
                 .into_iter()
-                .filter(|file| {
-                    *&self.common.sources.contains(&file.name().to_string())
-                })
+                .filter(|file| *&self.common.sources.contains(&file.name().to_string()))
                 .collect();
         }
         debug!("{} executing for {} files", brick.name(), files.len());

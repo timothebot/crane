@@ -31,7 +31,7 @@ pub struct Add {
     #[arg(short, long, value_hint=ValueHint::DirPath)]
     pub target_dir: Option<PathBuf>,
 
-    #[arg(short='n', long)]
+    #[arg(short = 'n', long)]
     pub dry_run: bool,
 }
 

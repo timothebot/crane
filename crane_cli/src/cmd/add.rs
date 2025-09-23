@@ -3,11 +3,11 @@ use std::{env, path::PathBuf};
 use fuzzy_matcher::{FuzzyMatcher, skim::SkimMatcherV2};
 use log::{debug, error, info, warn};
 
-use crane_bricks::brick::{Brick, bricks};
 use crate::{
     cmd::{Add, Run},
     config::CraneConfig,
 };
+use crane_bricks::brick::{Brick, bricks};
 
 impl Run for Add {
     fn run(&self) {
@@ -31,7 +31,8 @@ impl Run for Add {
             None => &env::current_dir().unwrap(),
         };
 
-        let bricks: Vec<Brick> = brick_dirs.iter().map(|dir| bricks(dir)).flatten().collect();
+        let bricks: Vec<Brick> =
+            brick_dirs.iter().map(|dir| bricks(dir)).flatten().collect();
 
         debug!(
             "Found bricks:\n* {}",
@@ -48,7 +49,9 @@ impl Run for Add {
             let mut matches: Vec<(Brick, i64)> = Vec::new();
             let mut highest_score: i64 = 0;
             for brick in &bricks {
-                if let Some(score) = matcher.fuzzy_match(brick.name(), brick_query.as_str()) {
+                if let Some(score) =
+                    matcher.fuzzy_match(brick.name(), brick_query.as_str())
+                {
                     if score >= highest_score {
                         matches.push((brick.clone(), score));
                         highest_score = score;
@@ -71,8 +74,12 @@ impl Run for Add {
 }
 
 fn add_brick(brick: Brick, target_dir: &PathBuf, dry_run: bool) {
-    info!("Adding brick '{}', {}, {:?}", brick.name(), dry_run, target_dir);
-    
+    info!(
+        "Adding brick '{}', {}, {:?}",
+        brick.name(),
+        dry_run,
+        target_dir
+    );
 }
 
 fn no_matches_found(query: String) {

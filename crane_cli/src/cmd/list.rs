@@ -1,9 +1,7 @@
 use log::info;
 
+use crate::cmd::{List, Run};
 use crane_bricks::brick::bricks;
-use crate::{
-    cmd::{List, Run},
-};
 
 impl Run for List {
     fn run(&self) {
