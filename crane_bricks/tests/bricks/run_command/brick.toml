@@ -1,0 +1,5 @@
+name = "test"
+
+[[actions]]
+action = "run_command"
+command = "echo hi > test.txt"
