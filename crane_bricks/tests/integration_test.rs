@@ -1,4 +1,7 @@
-use std::{fs, path::PathBuf, vec};
+use std::{
+    path::PathBuf,
+    vec,
+};
 
 use crane_bricks::{
     actions::{
@@ -25,6 +28,10 @@ fn test_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests")
 }
 
+fn brick_dir(brick: &str) -> PathBuf {
+    test_dir().join("bricks/").join(brick)
+}
+
 #[test]
 fn test_actions_parse() {
     init_logger();
@@ -37,13 +44,13 @@ action = "insert_file"
 
 "#;
     let config_parsed: BrickConfig = toml::from_str(config).unwrap();
-    let config: BrickConfig = BrickConfig {
-        name: String::from("hi"),
-        actions: vec![Action::InsertFile(InsertFileAction {
+    let config: BrickConfig = BrickConfig::new(
+        String::from("hi"),
+        vec![Action::InsertFile(InsertFileAction {
             common: Common::default(),
             if_file_exists: FileExistsAction::Append,
         })],
-    };
+    );
     assert_eq!(config_parsed, config);
 }
 
@@ -51,14 +58,28 @@ action = "insert_file"
 fn test_insert_file() {
     init_logger();
 
-    let brick = Brick::try_from(test_dir().join("bricks/insert_with_config/")).unwrap();
-
+    let brick = Brick::try_from(brick_dir("insert_with_config")).unwrap();
     debug!("{:?}", brick);
+
     let ctx = ActionContext { dry_run: false };
     let tmpdir = tempfile::tempdir().unwrap();
-    let res = brick.execute(&ctx, tmpdir.path());
-    assert!(res.is_ok());
+    brick.execute(&ctx, tmpdir.path()).unwrap();
     assert!(tmpdir.path().join("TEST_A").exists());
     assert!(!tmpdir.path().join("TEST_B").exists());
     assert!(!tmpdir.path().join("brick.toml").exists());
+}
+
+#[test]
+fn test_without_config() {
+    init_logger();
+
+    let brick = Brick::try_from(brick_dir("insert_no_config")).unwrap();
+    debug!("{:?}", brick);
+
+    assert_eq!(1, brick.config().actions().len());
+    
+    let ctx = ActionContext { dry_run: false };
+    let tmpdir = tempfile::tempdir().unwrap();
+    brick.execute(&ctx, tmpdir.path()).unwrap();
+    assert!(tmpdir.path().join("TEST_B").exists());
 }

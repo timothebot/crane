@@ -27,7 +27,7 @@ use crate::{
 /// ### Result
 ///
 /// Will create the LICENSE file. If it already exists, it replaces it.
-#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Deserialize, Default, Clone, PartialEq, Eq)]
 pub struct InsertFileAction {
     #[serde(flatten)]
     pub common: Common,
