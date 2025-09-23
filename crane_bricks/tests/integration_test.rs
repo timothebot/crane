@@ -1,7 +1,11 @@
 use std::{fs, path::PathBuf, vec};
 
 use crane_bricks::{
-    actions::{common::Common, insert_file::{FileExistsAction, InsertFileAction}, Action},
+    actions::{
+        Action,
+        common::Common,
+        insert_file::{FileExistsAction, InsertFileAction},
+    },
     brick::{Brick, BrickConfig},
     context::ActionContext,
 };
@@ -47,10 +51,7 @@ action = "insert_file"
 fn test_insert_file() {
     init_logger();
 
-
-
-    let brick =
-        Brick::try_from(test_dir().join("bricks/insert_with_config/")).unwrap();
+    let brick = Brick::try_from(test_dir().join("bricks/insert_with_config/")).unwrap();
 
     debug!("{:?}", brick);
     let ctx = ActionContext { dry_run: false };

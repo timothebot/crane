@@ -1,11 +1,16 @@
-use std::{fs, path::{Path, PathBuf}};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use anyhow::anyhow;
 use log::debug;
 use serde::Deserialize;
 
 use crate::{
-    actions::{Action, ExecuteAction}, context::ActionContext, file_utils::{sub_dirs, sub_paths}
+    actions::{Action, ExecuteAction},
+    context::ActionContext,
+    file_utils::{sub_dirs, sub_paths},
 };
 
 const BRICK_CONFIG_FILE: &'static str = "brick.toml";
@@ -24,16 +29,13 @@ pub struct BrickFile {
 
 impl BrickFile {
     pub fn new(name: String, content: String) -> Self {
-        Self {
-            name,
-            content,
-        }
+        Self { name, content }
     }
-    
+
     pub fn name(&self) -> &str {
         &self.name
     }
-    
+
     pub fn content(&self) -> &str {
         &self.content
     }
@@ -55,9 +57,12 @@ impl Brick {
             source_path,
         }
     }
-    
+
     pub fn new_with_config(config: BrickConfig, source_path: PathBuf) -> Self {
-        Brick { config, source_path }
+        Brick {
+            config,
+            source_path,
+        }
     }
 
     pub fn name(&self) -> &str {
@@ -101,7 +106,10 @@ impl TryFrom<PathBuf> for Brick {
     fn try_from(value: PathBuf) -> Result<Self, Self::Error> {
         let config_file = value.join(BRICK_CONFIG_FILE);
         if !config_file.exists() {
-            debug!("Brick config file not found at '{:?}'", config_file.display());
+            debug!(
+                "Brick config file not found at '{:?}'",
+                config_file.display()
+            );
             let name = value
                 .as_path()
                 .file_name()
@@ -109,7 +117,8 @@ impl TryFrom<PathBuf> for Brick {
             return Ok(Brick::new(name.display().to_string(), value));
         }
         debug!("Creating Brick from config file");
-        let config: BrickConfig = toml::from_str(fs::read_to_string(config_file)?.as_str())?;
+        let config: BrickConfig =
+            toml::from_str(fs::read_to_string(config_file)?.as_str())?;
         Ok(Brick::new_with_config(config, value))
     }
 }

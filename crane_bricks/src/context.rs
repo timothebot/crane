@@ -1,4 +1,3 @@
-
 pub struct ActionContext {
     pub dry_run: bool,
 }

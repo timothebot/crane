@@ -12,7 +12,7 @@ impl Run for CraneCli {
     fn run(&self) {
         match &self.command {
             CraneCommand::Add(cmd) => cmd.run(),
-            CraneCommand::List(cmd) => cmd.run()
+            CraneCommand::List(cmd) => cmd.run(),
         }
     }
 }

@@ -1,0 +1,4 @@
+name = "serde"
+
+action = "command"
+action_settings = "echo 'hi'"
