@@ -125,4 +125,14 @@ fn test_modify_replace() {
 }
 
 #[test]
-fn test_command() {}
+fn test_command() {
+    init_logger();
+
+    let brick = Brick::try_from(brick_dir("run_command")).unwrap();
+
+    let tmpdir = tempfile::tempdir().unwrap();
+    let ctx = ActionContext { dry_run: false };
+
+    brick.execute(&ctx, tmpdir.path()).unwrap();
+    assert!(tmpdir.path().join("test.txt").exists());
+}

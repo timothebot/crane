@@ -1,6 +1,7 @@
 pub mod common;
 pub mod insert_file;
 pub mod modify_file;
+pub mod run_command;
 
 use std::path::Path;
 
@@ -8,7 +9,7 @@ use log::debug;
 use serde::Deserialize;
 
 use crate::{
-    actions::{insert_file::InsertFileAction, modify_file::ModifyFileAction},
+    actions::{insert_file::InsertFileAction, modify_file::ModifyFileAction, run_command::RunCommandAction},
     brick::Brick,
     context::ActionContext,
 };
@@ -27,6 +28,7 @@ pub trait ExecuteAction {
 pub enum Action {
     InsertFile(InsertFileAction),
     ModifyFile(ModifyFileAction),
+    RunCommand(RunCommandAction),
 }
 
 impl ExecuteAction for Action {
@@ -40,6 +42,7 @@ impl ExecuteAction for Action {
         match &self {
             Action::InsertFile(action) => action.execute(context, brick, cwd),
             Action::ModifyFile(action) => action.execute(context, brick, cwd),
+            Action::RunCommand(action) => action.execute(context, brick, cwd),
         }
     }
 }
