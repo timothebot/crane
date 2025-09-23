@@ -1,0 +1,8 @@
+name = "test"
+
+[[actions]]
+sources = ["Test.toml"]
+action = "modify_file"
+type = "replace"
+content = "[dev-dependencies]"
+selector = "[dependencies]"

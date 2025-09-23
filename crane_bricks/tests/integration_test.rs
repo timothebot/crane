@@ -1,7 +1,4 @@
-use std::{
-    path::PathBuf,
-    vec,
-};
+use std::vec;
 
 use crane_bricks::{
     actions::{
@@ -14,22 +11,16 @@ use crane_bricks::{
 };
 use log::debug;
 
-fn init_logger() {
-    let _ = env_logger::builder()
-        // Include all events in tests
-        .filter_level(log::LevelFilter::max())
-        // Ensure events are captured by `cargo test`
-        .is_test(true)
-        // Ignore errors initializing the logger if tests race to configure it
-        .try_init();
-}
+use common::*;
 
-fn test_dir() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests")
-}
+mod common;
 
-fn brick_dir(brick: &str) -> PathBuf {
-    test_dir().join("bricks/").join(brick)
+#[test]
+fn test_test_functions() {
+    let tmpdir = tempfile::tempdir().unwrap();
+    add_test_data(tmpdir.path(), "Test.toml");
+
+    assert!(tmpdir.path().join("Test.toml").exists());
 }
 
 #[test]
@@ -77,9 +68,61 @@ fn test_without_config() {
     debug!("{:?}", brick);
 
     assert_eq!(1, brick.config().actions().len());
-    
+
     let ctx = ActionContext { dry_run: false };
     let tmpdir = tempfile::tempdir().unwrap();
     brick.execute(&ctx, tmpdir.path()).unwrap();
     assert!(tmpdir.path().join("TEST_B").exists());
 }
+
+#[test]
+fn test_modify_append() {
+    init_logger();
+
+    let brick = Brick::try_from(brick_dir("modify_append")).unwrap();
+
+    let tmpdir = tempfile::tempdir().unwrap();
+    add_test_data(tmpdir.path(), "Test.toml");
+    let ctx = ActionContext { dry_run: false };
+
+    brick.execute(&ctx, tmpdir.path()).unwrap();
+    let res_content = file_content(&tmpdir.path().join("Test.toml"));
+    debug!("{}", res_content);
+    assert!(res_content.contains("[dependencies]\nserde = \"1\"\n"))
+}
+
+#[test]
+fn test_modify_prepend() {
+    init_logger();
+
+    let brick = Brick::try_from(brick_dir("modify_prepend")).unwrap();
+
+    let tmpdir = tempfile::tempdir().unwrap();
+    add_test_data(tmpdir.path(), "Test.toml");
+    let ctx = ActionContext { dry_run: false };
+
+    brick.execute(&ctx, tmpdir.path()).unwrap();
+    let res_content = file_content(&tmpdir.path().join("Test.toml"));
+    debug!("{}", res_content);
+    assert!(res_content.contains("serde = \"1\"\n[dependencies]"))
+}
+
+#[test]
+fn test_modify_replace() {
+    init_logger();
+
+    let brick = Brick::try_from(brick_dir("modify_replace")).unwrap();
+
+    let tmpdir = tempfile::tempdir().unwrap();
+    add_test_data(tmpdir.path(), "Test.toml");
+    let ctx = ActionContext { dry_run: false };
+
+    brick.execute(&ctx, tmpdir.path()).unwrap();
+    let res_content = file_content(&tmpdir.path().join("Test.toml"));
+    debug!("{}", res_content);
+    assert!(!res_content.contains("[dependencies]"));
+    assert!(res_content.contains("[dev-dependencies]"));
+}
+
+#[test]
+fn test_command() {}
