@@ -1,5 +1,4 @@
 use anyhow::{Ok, anyhow};
-use log::debug;
 use serde::Deserialize;
 
 use crate::{
@@ -75,9 +74,13 @@ impl ModifyFileAction {
         let locations: Vec<(usize, &str)> =
             source_text.match_indices(&self.selector).collect();
 
-        debug!("Found {} matches", locations.len());
         if locations.len() == 0 {
             return Err(anyhow!("No selector matches in target file!"));
+        }
+        if locations.len() > 1 {
+            info!("Found {} matches", locations.len());
+        } else {
+            info!("Found {} match", locations.len());
         }
 
         let mut output = source_text.clone();
@@ -93,13 +96,39 @@ impl ModifyFileAction {
                         (modified_index + selected.len()).max(0),
                         &self.content(),
                     );
-                },
+                }
                 ModifyType::Prepend => {
                     output.insert_str(modified_index, &self.content());
-                },
-                ModifyType::Replace => {
-                    output.replace_range(modified_index..(modified_index + selected.len()).max(0), &self.content());
                 }
+                ModifyType::Replace => {
+                    // TODO: Something isnt right here but im so tired rn pls
+                    // future tiimo fix this
+                    debug!(
+                        "replacing from {} to {} (total chars {})",
+                        modified_index,
+                        (modified_index + selected.len()).max(0),
+                        output.len()
+                    );
+                    if modified_index > output.len() {
+                        output.insert_str(output.len(), &self.content());
+                    } else {
+                        output.replace_range(
+                            modified_index..(modified_index + selected.len()),
+                            &self.content(),
+                        );
+                    }
+                }
+            }
+        }
+        match &self.r#type {
+            ModifyType::Append => {
+                info!("Appended to all matches");
+            }
+            ModifyType::Prepend => {
+                info!("Prepended to all matches");
+            }
+            ModifyType::Replace => {
+                info!("Replaced all matches");
             }
         }
         Ok(output)
@@ -124,6 +153,7 @@ impl ExecuteAction for ModifyFileAction {
             if !target_path.exists() {
                 return Err(anyhow!("Target file does not exist!"));
             }
+            info!("Modifying file '{}'", target_path.display());
             let content = file_read_content(context, &target_path)?;
             file_replace_content(context, &target_path, &self.modify_content(content)?)?;
         }

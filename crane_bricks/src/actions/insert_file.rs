@@ -1,6 +1,5 @@
 use std::path::Path;
 
-use log::debug;
 use serde::Deserialize;
 
 use crate::{
@@ -61,21 +60,42 @@ impl ExecuteAction for InsertFileAction {
                 .collect();
         }
         debug!("{} executing for {} files", brick.name(), files.len());
+        if files.len() > 1 {
+            info!(
+                "Inserting files: '{}'",
+                files
+                    .iter()
+                    .map(|file| file.name().to_string())
+                    .collect::<Vec<String>>()
+                    .join("', '")
+            )
+        } else if files.len() == 1 {
+            info!("Inserting file '{}'", files.first().unwrap().name());
+        } else {
+            warn!("No files found to insert!");
+        }
         for file in files {
             let target_path = cwd.join(file.name());
             let content = file.content().to_string();
             if !target_path.exists() {
+                info!("Created file '{}'", file.name());
                 file_create_new(context, &target_path, Some(content))?;
                 continue;
             }
+            warn!("File '{}' already exists", file.name());
             match &self.if_file_exists {
                 FileExistsAction::Append => {
+                    info!("Appending content to file");
                     file_append_content(context, &target_path, &content)?
                 }
                 FileExistsAction::Replace => {
+                    info!("Replacing all content of file");
                     file_replace_content(context, &target_path, &content)?
                 }
-                FileExistsAction::Pass => continue,
+                FileExistsAction::Pass => {
+                    info!("Continuing");
+                    continue
+                },
             }
         }
         Ok(())

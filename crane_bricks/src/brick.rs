@@ -4,7 +4,6 @@ use std::{
 };
 
 use anyhow::anyhow;
-use log::debug;
 use serde::Deserialize;
 
 use crate::{
@@ -18,6 +17,8 @@ const BRICK_CONFIG_FILE: &'static str = "brick.toml";
 #[derive(Deserialize, Debug, Clone, Default, PartialEq, Eq)]
 pub struct BrickConfig {
     name: String,
+
+    #[serde(default)]
     actions: Vec<Action>,
 }
 
@@ -25,11 +26,11 @@ impl BrickConfig {
     pub fn new(name: String, actions: Vec<Action>) -> Self {
         Self { name, actions }
     }
-    
+
     pub fn name(&self) -> &str {
         &self.name
     }
-    
+
     pub fn actions(&self) -> &[Action] {
         &self.actions
     }
@@ -151,6 +152,14 @@ pub fn bricks(dir: &PathBuf) -> Vec<Brick> {
         return vec![];
     };
     dirs.iter()
-        .filter_map(|dir| Brick::try_from(dir.clone()).ok())
+        .filter_map(|dir| {
+            match Brick::try_from(dir.clone()) {
+                Ok(brick) => Some(brick),
+                Err(error) => {
+                    warn!("Failed to create brick at '{}'. Error: {}", dir.display(), error);
+                    None
+                },
+            }
+        })
         .collect::<Vec<Brick>>()
 }

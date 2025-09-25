@@ -1,4 +1,20 @@
 name = "serde"
 
-action = "command"
-action_settings = "echo 'hi'"
+[[actions]]
+action = "modify_file"
+
+# The content that will be inserted into the file.
+content = "a" # or file (prefix path with file:)
+
+# Where the modification should happen
+selector = "MIT license" # either text or regex (prefix with re:)
+
+# Modify can be type "append" (default), "prepend" or "replace":
+# append text inside file
+type = "replace"
+
+
+# Specify which files this action applies to
+sources = [
+    "LICENSE"
+]

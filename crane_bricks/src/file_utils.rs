@@ -5,7 +5,6 @@ use std::{
 };
 
 use anyhow::anyhow;
-use log::debug;
 
 use crate::context::ActionContext;
 

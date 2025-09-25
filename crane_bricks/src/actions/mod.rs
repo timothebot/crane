@@ -5,7 +5,6 @@ pub mod run_command;
 
 use std::path::Path;
 
-use log::debug;
 use serde::Deserialize;
 
 use crate::{
