@@ -1,5 +1,6 @@
 use std::{env, path::PathBuf};
 
+use colored::Colorize;
 use fuzzy_matcher::{FuzzyMatcher, skim::SkimMatcherV2};
 use log::{debug, error, info, warn};
 
@@ -7,13 +8,18 @@ use crate::{
     cmd::{Add, Run},
     config::CraneConfig,
 };
-use crane_bricks::brick::{Brick, bricks};
+use crane_bricks::{
+    brick::{Brick, bricks},
+    context::ActionContext,
+};
 
 impl Run for Add {
     fn run(&self) {
         let config = CraneConfig::new();
-        let brick_dirs = if self.brick_dirs.len() > 0 {
-            &self.brick_dirs
+        let brick_dirs = if let Some(brick_dirs) = &self.brick_dirs
+            && brick_dirs.len() > 0
+        {
+            brick_dirs
         } else {
             &config.brick_dirs().to_vec()
         };
@@ -43,57 +49,78 @@ impl Run for Add {
                 .join("\n* ")
         );
 
-        let matcher = SkimMatcherV2::default();
-
-        for brick_query in &self.bricks {
-            let mut matches: Vec<(Brick, i64)> = Vec::new();
-            let mut highest_score: i64 = 0;
-            for brick in &bricks {
-                if let Some(score) =
-                    matcher.fuzzy_match(brick.name(), brick_query.as_str())
-                {
-                    if score >= highest_score {
-                        matches.push((brick.clone(), score));
-                        highest_score = score;
+        let brick_queries: Vec<String> = self
+            .bricks
+            .iter()
+            .map(|query| {
+                for alias in config.alias() {
+                    if alias.name().to_lowercase() == query.to_lowercase() {
+                        return alias.bricks().to_vec();
                     }
                 }
+                return vec![query.clone()];
+            })
+            .flatten()
+            .collect();
+
+        let mut bricks_to_execute: Vec<&Brick> = Vec::new();
+        for brick_query in brick_queries {
+            let mut found = false;
+            for brick in &bricks {
+                if brick.name().to_lowercase() == brick_query.to_lowercase() {
+                    bricks_to_execute.push(brick);
+                    found = true;
+                    break;
+                }
             }
-            if matches.len() == 1 {
-                add_brick(
-                    matches.first().unwrap().0.clone(),
-                    &target_dir,
-                    self.dry_run,
-                );
-            } else if matches.len() > 1 {
-                multiple_matches_found(brick_query.to_string(), matches);
-            } else {
-                no_matches_found(brick_query.to_string());
+            if !found {
+                eprintln!("{} Could not find brick '{}'", "⚠".red(), brick_query);
             }
+        }
+        /* TODO: render aliases like this:
+        → Executing 4 bricks
+          • MIT
+          • rust (alias)
+            ◦ author-rust
+            ◦ serde
+            • rustfmt
+        */
+        let plural = if bricks_to_execute.len() > 1 {
+            "s"
+        } else {
+            ""
+        };
+        println!(
+            "{} Executing {} brick{}",
+            "→".green(),
+            bricks_to_execute.len().to_string().purple(),
+            plural
+        );
+        for brick in &bricks_to_execute {
+            println!("  {} {}", "•".dimmed(), brick.name())
+        }
+
+        let context = ActionContext::new(self.dry_run);
+        for brick in bricks_to_execute {
+            execute_brick(brick, &context, &target_dir);
         }
     }
 }
 
-fn add_brick(brick: Brick, target_dir: &PathBuf, dry_run: bool) {
-    info!(
-        "Adding brick '{}', {}, {:?}",
-        brick.name(),
-        dry_run,
-        target_dir
+fn execute_brick(brick: &Brick, context: &ActionContext, cwd: &PathBuf) {
+    println!(
+        "\n{} Executing brick '{}'",
+        "→".green(),
+        brick.name().purple()
     );
-}
-
-fn no_matches_found(query: String) {
-    error!("No possible bricks found for '{}'", query);
-}
-
-fn multiple_matches_found(query: String, matches: Vec<(Brick, i64)>) {
-    warn!(
-        "Multiple possible bricks found for '{}'\n* {}",
-        query,
-        matches
-            .iter()
-            .map(|(brick, score)| format!("{} ({})", brick.name(), score))
-            .collect::<Vec<String>>()
-            .join("\n* ")
-    );
+    match brick.execute(context, &cwd) {
+        Ok(_) => println!(
+            "{}",
+            format!("✔ Successfully executed '{}'! ◝(°ᗜ°)◜", brick.name().bold()).green()
+        ),
+        Err(_) => eprintln!(
+            "{}",
+            format!("✘ Failed to execute '{}'! ヽ(°〇°)ﾉ", brick.name().bold()).red()
+        ),
+    }
 }

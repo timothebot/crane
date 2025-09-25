@@ -37,6 +37,7 @@ impl ExecuteAction for RunCommandAction {
         _brick: &Brick,
         cwd: &Path,
     ) -> anyhow::Result<()> {
+        info!("Running command");
         if context.dry_run {
             return Ok(());
         }

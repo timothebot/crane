@@ -16,8 +16,25 @@ pub fn config_dir() -> PathBuf {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Alias {
+    name: String,
+    bricks: Vec<String>,
+}
+
+impl Alias {
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+    
+    pub fn bricks(&self) -> &[String] {
+        &self.bricks
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CraneConfig {
     brick_dirs: Vec<PathBuf>,
+    alias: Vec<Alias>,
 }
 
 impl CraneConfig {
@@ -32,11 +49,16 @@ impl CraneConfig {
         }
         Self {
             brick_dirs: vec![config_dir().join("bricks")],
+            alias: vec![]
         }
     }
 
     pub fn brick_dirs(&self) -> &[PathBuf] {
         &self.brick_dirs
+    }
+
+    pub fn alias(&self) -> &Vec<Alias> {
+        &self.alias
     }
 }
 

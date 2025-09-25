@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand, ValueHint, command};
-use clap_verbosity::Verbosity;
+use clap_verbosity::{InfoLevel, Verbosity};
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
@@ -10,7 +10,7 @@ pub struct CraneCli {
     pub command: CraneCommand,
 
     #[command(flatten)]
-    pub verbose: Verbosity,
+    pub verbose: Verbosity<InfoLevel>,
 }
 
 #[derive(Subcommand, Debug)]
@@ -25,8 +25,8 @@ pub struct Add {
     #[clap(num_args = 1.., required = true)]
     pub bricks: Vec<String>,
 
-    #[arg(short, long, value_hint=ValueHint::DirPath, value_terminator=",", default_value="")]
-    pub brick_dirs: Vec<PathBuf>,
+    #[arg(short, long, value_hint=ValueHint::DirPath, value_terminator=",")]
+    pub brick_dirs: Option<Vec<PathBuf>>,
 
     #[arg(short, long, value_hint=ValueHint::DirPath)]
     pub target_dir: Option<PathBuf>,
