@@ -1,15 +1,14 @@
 use std::{env, path::PathBuf};
 
 use colored::Colorize;
-use fuzzy_matcher::{FuzzyMatcher, skim::SkimMatcherV2};
-use log::{debug, error, info, warn};
+use log::debug;
 
 use crate::{
     cmd::{Add, Run},
     config::CraneConfig,
 };
 use crane_bricks::{
-    brick::{Brick, bricks},
+    brick::{Brick, bricks_in_dir},
     context::ActionContext,
 };
 
@@ -38,7 +37,7 @@ impl Run for Add {
         };
 
         let bricks: Vec<Brick> =
-            brick_dirs.iter().map(|dir| bricks(dir)).flatten().collect();
+            brick_dirs.iter().map(|dir| bricks_in_dir(dir)).flatten().collect();
 
         debug!(
             "Found bricks:\n* {}",

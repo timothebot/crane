@@ -1,0 +1,6 @@
+
+brick_dirs = ["./foo/other_bricks/", "./bricks"]
+
+[[alias]]
+name = "rust"
+bricks = ["mit", "serde"]
