@@ -63,7 +63,11 @@ pub fn file_replace_content(
     if ctx.dry_run {
         return Ok(());
     }
-    let mut file = File::options().write(true).create(true).truncate(true).open(path)?;
+    let mut file = File::options()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(path)?;
     file.write_all(content.as_bytes())?;
     Ok(())
 }
