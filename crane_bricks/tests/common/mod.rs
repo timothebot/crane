@@ -32,7 +32,7 @@ pub fn add_test_data(temp: &Path, file: &str) {
     data_file.read_to_string(&mut content).unwrap();
 
     let mut target_file = File::create(temp.join(file)).unwrap();
-    target_file.write(content.as_bytes()).unwrap();
+    target_file.write_all(content.as_bytes()).unwrap();
 }
 
 pub fn file_content(path: &Path) -> String {
