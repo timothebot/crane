@@ -3,7 +3,7 @@ name = "crane_bricks"
 description = "Execute bricks"
 version = "0.1.0"
 edition = "2024"
-license = "mit"
+license = "MIT"
 repository = "https://github.com/timothebot/crane"
 
 [dependencies]
