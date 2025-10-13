@@ -84,19 +84,3 @@ jobs:
             Cargo.lock
           name: v${{ steps.get_version.outputs.value }}
           tag_name: ${{ github.ref_name }}
-
-  publish-crates:
-    name: Publish to crates.io
-    runs-on: ubuntu-latest
-    needs: [release]
-    # Remove this file to enable crates.io publishing
-    if: false
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - name: Publish to crates.io
-        run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
