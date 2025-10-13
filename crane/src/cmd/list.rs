@@ -13,7 +13,7 @@ impl Run for List {
     fn run(&self) {
         let config = CraneConfig::new();
         let brick_dirs = if let Some(brick_dirs) = &self.brick_dirs
-            && brick_dirs.len() > 0
+            && brick_dirs.is_empty()
         {
             brick_dirs
         } else {

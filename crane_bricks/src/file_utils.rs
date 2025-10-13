@@ -35,7 +35,7 @@ pub fn file_create_new(
     if !ctx.dry_run {
         debug!("Creating new file '{:?}'", path);
         let mut file = File::create_new(path)?;
-        file.write(content.unwrap_or_default().as_bytes())?;
+        file.write_all(content.unwrap_or_default().as_bytes())?;
     }
     Ok(())
 }
@@ -63,8 +63,8 @@ pub fn file_replace_content(
     if ctx.dry_run {
         return Ok(());
     }
-    let mut file = File::options().write(true).create(true).open(&path)?;
-    file.write(content.as_bytes())?;
+    let mut file = File::options().write(true).create(true).truncate(true).open(path)?;
+    file.write_all(content.as_bytes())?;
     Ok(())
 }
 
@@ -76,7 +76,7 @@ pub fn file_append_content(
     if ctx.dry_run {
         return Ok(());
     }
-    let mut file = File::options().append(true).create(true).open(&path)?;
-    file.write(content.as_bytes())?;
+    let mut file = File::options().append(true).create(true).open(path)?;
+    file.write_all(content.as_bytes())?;
     Ok(())
 }

@@ -1,4 +1,4 @@
-use std::{env, path::PathBuf};
+use std::{env, path::Path};
 
 use colored::Colorize;
 use log::debug;
@@ -16,7 +16,7 @@ impl Run for Add {
     fn run(&self) {
         let config = CraneConfig::new();
         let brick_dirs = if let Some(brick_dirs) = &self.brick_dirs
-            && brick_dirs.len() > 0
+            && brick_dirs.is_empty()
         {
             brick_dirs
         } else {
@@ -38,8 +38,7 @@ impl Run for Add {
 
         let bricks: Vec<Brick> = brick_dirs
             .iter()
-            .map(|dir| bricks_in_dir(dir))
-            .flatten()
+            .flat_map(|dir| bricks_in_dir(dir))
             .collect();
 
         debug!(
@@ -54,15 +53,14 @@ impl Run for Add {
         let brick_queries: Vec<String> = self
             .bricks
             .iter()
-            .map(|query| {
+            .flat_map(|query| {
                 for alias in config.alias() {
                     if alias.name().to_lowercase() == query.to_lowercase() {
                         return alias.bricks().to_vec();
                     }
                 }
-                return vec![query.clone()];
+                vec![query.clone()]
             })
-            .flatten()
             .collect();
 
         let mut bricks_to_execute: Vec<&Brick> = Vec::new();
@@ -100,18 +98,18 @@ impl Run for Add {
 
         let context = ActionContext::new(self.dry_run);
         for brick in bricks_to_execute {
-            execute_brick(brick, &context, &target_dir);
+            execute_brick(brick, &context, target_dir);
         }
     }
 }
 
-fn execute_brick(brick: &Brick, context: &ActionContext, cwd: &PathBuf) {
+fn execute_brick(brick: &Brick, context: &ActionContext, cwd: &Path) {
     println!(
         "\n{} Executing brick '{}'",
         "→".green(),
         brick.name().purple()
     );
-    match brick.execute(context, &cwd) {
+    match brick.execute(context, cwd) {
         Ok(_) => println!(
             "{}",
             format!("✔ Successfully executed '{}'! ◝(°ᗜ°)◜", brick.name().bold()).green()
