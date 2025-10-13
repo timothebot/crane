@@ -1,7 +1,13 @@
 [package]
 name = "crane"
+description = "Easily add bricks (files or snippets) to your projects!"
 version = "0.1.0"
 edition = "2024"
+license = "mit"
+readme = "../README.md"
+repository = "https://github.com/timothebot/crane"
+categories = ["command-line-utilities"]
+keywords = ["cli", "tool", "utility"]
 
 [[bin]]
 name = "crane"

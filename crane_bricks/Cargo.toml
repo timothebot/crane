@@ -1,7 +1,10 @@
 [package]
 name = "crane_bricks"
+description = "Execute bricks"
 version = "0.1.0"
 edition = "2024"
+license = "mit"
+repository = "https://github.com/timothebot/crane"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
