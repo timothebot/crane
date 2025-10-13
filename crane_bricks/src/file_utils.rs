@@ -17,6 +17,7 @@ pub fn sub_dirs(dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
 
 /// Get a vec of all files and folders in the given dir if valid
 pub fn sub_paths(dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
+    let dir = PathBuf::from(shellexpand::tilde(&dir.display().to_string()).to_string());
     if !dir.exists() || !dir.is_dir() {
         return Err(anyhow!("Target does not exist or not a directory"));
     }

@@ -7,7 +7,7 @@ use anyhow::anyhow;
 use serde::Deserialize;
 
 use crate::{
-    actions::{insert_file::InsertFileAction, Action, ExecuteAction},
+    actions::{Action, ExecuteAction, insert_file::InsertFileAction},
     context::ActionContext,
     file_utils::{sub_dirs, sub_paths},
 };
@@ -68,9 +68,7 @@ impl Brick {
             config: BrickConfig {
                 name,
                 // If no action is configured, InsertFileAction is default
-                actions: vec![
-                    Action::InsertFile(InsertFileAction::default())
-                ],
+                actions: vec![Action::InsertFile(InsertFileAction::default())],
                 ..BrickConfig::default()
             },
             source_path,
@@ -148,17 +146,20 @@ impl TryFrom<PathBuf> for Brick {
 
 /// Get all bricks in a directory
 pub fn bricks_in_dir(dir: &PathBuf) -> Vec<Brick> {
+    debug!("{:#?}", sub_dirs(dir));
     let Ok(dirs) = sub_dirs(dir) else {
         return vec![];
     };
     dirs.iter()
-        .filter_map(|dir| {
-            match Brick::try_from(dir.clone()) {
-                Ok(brick) => Some(brick),
-                Err(error) => {
-                    warn!("Failed to create brick at '{}'. Error: {}", dir.display(), error);
-                    None
-                },
+        .filter_map(|dir| match Brick::try_from(dir.clone()) {
+            Ok(brick) => Some(brick),
+            Err(error) => {
+                warn!(
+                    "Failed to create brick at '{}'. Error: {}",
+                    dir.display(),
+                    error
+                );
+                None
             }
         })
         .collect::<Vec<Brick>>()

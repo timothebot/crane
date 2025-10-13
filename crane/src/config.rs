@@ -62,7 +62,7 @@ impl CraneConfig {
         };
 
         if config.brick_dirs.is_empty() {
-            config.brick_dirs.push(PathBuf::from("./bricks"));
+            config.brick_dirs.push(PathBuf::from("bricks"));
         }
 
         config.brick_dirs = config
@@ -117,6 +117,7 @@ mod tests {
     fn test_config_dir_from_env() {
         // should be safe as long as it is only one test (of this kind)
         unsafe {
+            // THIS IS NOT THE DEFAULT PATH!
             env::set_var(ENV_KEY_CONFIG_DIR, "~/.crane");
         };
         assert_eq!(
@@ -124,7 +125,7 @@ mod tests {
             String::from("~/.crane")
         )
     }
-    
+
     #[test]
     fn test_alias_map() {
         let aliases = vec![
