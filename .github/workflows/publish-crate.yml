@@ -1,0 +1,33 @@
+name: Publish to crates.io
+
+on:
+  workflow_dispatch:
+    inputs:
+      crate:
+        description: 'Which crate to publish'
+        required: true
+        default: 'crane'
+        type: choice
+        options:
+        - crane
+        - crane_bricks
+
+env:
+  CARGO_INCREMENTAL: 0
+
+permissions:
+  contents: write
+
+jobs:
+  publish-crates:
+    name: Publish to crates.io
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Publish to crates.io
+        run: cargo publish -p ${{ inputs.crate }} --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
