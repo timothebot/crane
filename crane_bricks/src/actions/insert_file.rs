@@ -94,8 +94,8 @@ impl ExecuteAction for InsertFileAction {
                 }
                 FileExistsAction::Pass => {
                     info!("Continuing");
-                    continue
-                },
+                    continue;
+                }
             }
         }
         Ok(())

@@ -36,8 +36,11 @@ impl Run for Add {
             None => &env::current_dir().unwrap(),
         };
 
-        let bricks: Vec<Brick> =
-            brick_dirs.iter().map(|dir| bricks_in_dir(dir)).flatten().collect();
+        let bricks: Vec<Brick> = brick_dirs
+            .iter()
+            .map(|dir| bricks_in_dir(dir))
+            .flatten()
+            .collect();
 
         debug!(
             "Found bricks:\n* {}",
@@ -84,11 +87,7 @@ impl Run for Add {
             ◦ serde
             • rustfmt
         */
-        let plural = if bricks_to_execute.len() > 1 {
-            "s"
-        } else {
-            ""
-        };
+        let plural = if bricks_to_execute.len() > 1 { "s" } else { "" };
         println!(
             "{} Executing {} brick{}",
             "→".green(),

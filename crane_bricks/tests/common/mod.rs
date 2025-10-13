@@ -1,4 +1,8 @@
-use std::{fs::File, io::{Read, Write}, path::{Path, PathBuf}};
+use std::{
+    fs::File,
+    io::{Read, Write},
+    path::{Path, PathBuf},
+};
 
 pub fn init_logger() {
     let _ = env_logger::builder()

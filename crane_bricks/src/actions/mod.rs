@@ -8,7 +8,10 @@ use std::path::Path;
 use serde::Deserialize;
 
 use crate::{
-    actions::{insert_file::InsertFileAction, modify_file::ModifyFileAction, run_command::RunCommandAction},
+    actions::{
+        insert_file::InsertFileAction, modify_file::ModifyFileAction,
+        run_command::RunCommandAction,
+    },
     brick::Brick,
     context::ActionContext,
 };

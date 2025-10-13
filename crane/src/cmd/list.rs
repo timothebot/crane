@@ -5,7 +5,7 @@ use log::info;
 
 use crate::{
     cmd::{List, Run},
-    config::{map_aliases, CraneConfig},
+    config::{CraneConfig, map_aliases},
 };
 use crane_bricks::brick::bricks_in_dir;
 
