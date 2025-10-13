@@ -157,19 +157,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "crane_bricks"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "env_logger",
- "log",
- "serde",
- "tempfile",
- "toml",
-]
-
-[[package]]
-name = "crane_cli"
+name = "crane"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -182,6 +170,18 @@ dependencies = [
  "fuzzy-matcher",
  "log",
  "serde",
+ "toml",
+]
+
+[[package]]
+name = "crane_bricks"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "env_logger",
+ "log",
+ "serde",
+ "tempfile",
  "toml",
 ]
 

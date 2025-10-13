@@ -1,8 +1,7 @@
 [package]
-name = "crane_cli"
+name = "crane"
 version = "0.1.0"
 edition = "2024"
-author = "timothebot"
 
 [[bin]]
 name = "crane"

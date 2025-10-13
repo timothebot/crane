@@ -147,7 +147,7 @@ impl TryFrom<PathBuf> for Brick {
 }
 
 /// Get all bricks in a directory
-pub fn bricks(dir: &PathBuf) -> Vec<Brick> {
+pub fn bricks_in_dir(dir: &PathBuf) -> Vec<Brick> {
     let Ok(dirs) = sub_dirs(dir) else {
         return vec![];
     };

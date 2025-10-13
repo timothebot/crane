@@ -38,6 +38,6 @@ pub struct Add {
 /// List all available bricks
 #[derive(Debug, Parser, Clone)]
 pub struct List {
-    #[arg(short, long, value_hint=ValueHint::DirPath)]
-    pub brick_dirs: Option<PathBuf>,
+    #[arg(short, long, value_hint=ValueHint::DirPath, value_terminator=",")]
+    pub brick_dirs: Option<Vec<PathBuf>>,
 }

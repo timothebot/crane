@@ -6,6 +6,24 @@ A brick is an instruction. It can be a file that gets added, a command that exec
 
 ## Quick Examples
 
-### License
+### License brick
 
 Instead of having to look up and copy your desired license from the web, you can create a brick out of it and then run `crane add some-license`.
+
+### Language specific bricks
+
+You can create multiple bricks and combine them behind an alias.
+
+This way, you can easily bootstrap new projects! 
+
+```shell
+$ cargo new my_project && cd my_project
+# ...
+$ crane add rust
+→ Executing 4 bricks
+  • mit
+  • serde
+  • rustfmt
+  • rustauthor
+# ...
+```
