@@ -2,10 +2,10 @@ use std::{collections::HashMap, env, fs, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 
-const ENV_KEY_CONFIG_DIR: &'static str = "CRANE_CONFIG_DIR";
+const ENV_KEY_CONFIG_DIR: &str = "CRANE_CONFIG_DIR";
 
 fn config_path_from_env() -> anyhow::Result<PathBuf> {
-    Ok(PathBuf::try_from(env::var(ENV_KEY_CONFIG_DIR)?)?)
+    Ok(PathBuf::from(env::var(ENV_KEY_CONFIG_DIR)?))
 }
 
 pub fn config_dir() -> PathBuf {
@@ -67,7 +67,7 @@ impl CraneConfig {
 
         config.brick_dirs = config
             .brick_dirs()
-            .into_iter()
+            .iter()
             .map(|brick_dir| {
                 if brick_dir.is_absolute() {
                     brick_dir.clone()

@@ -74,7 +74,7 @@ impl ModifyFileAction {
         let locations: Vec<(usize, &str)> =
             source_text.match_indices(&self.selector).collect();
 
-        if locations.len() == 0 {
+        if locations.is_empty() {
             return Err(anyhow!("No selector matches in target file!"));
         }
         if locations.len() > 1 {
@@ -147,7 +147,7 @@ impl ExecuteAction for ModifyFileAction {
             .iter()
             .map(|brick_file| brick_file.name().to_string())
             .collect();
-        files.extend(self.common.sources.clone().into_iter());
+        files.extend(self.common.sources.clone());
         for file in files {
             let target_path = cwd.join(file);
             if !target_path.exists() {

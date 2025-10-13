@@ -12,7 +12,7 @@ use crate::{
     file_utils::{sub_dirs, sub_paths},
 };
 
-const BRICK_CONFIG_FILE: &'static str = "brick.toml";
+const BRICK_CONFIG_FILE: &str = "brick.toml";
 
 #[derive(Deserialize, Debug, Clone, Default, PartialEq, Eq)]
 pub struct BrickConfig {
@@ -69,7 +69,6 @@ impl Brick {
                 name,
                 // If no action is configured, InsertFileAction is default
                 actions: vec![Action::InsertFile(InsertFileAction::default())],
-                ..BrickConfig::default()
             },
             source_path,
         }
@@ -96,14 +95,14 @@ impl Brick {
 
     pub fn execute(&self, context: &ActionContext, cwd: &Path) -> anyhow::Result<()> {
         for action in &self.config.actions {
-            action.execute(context, &self, cwd)?;
+            action.execute(context, self, cwd)?;
         }
         Ok(())
     }
 
     /// Returns a list of all files that
     pub fn files(&self) -> Vec<BrickFile> {
-        let Ok(paths) = sub_paths(&self.path()) else {
+        let Ok(paths) = sub_paths(self.path()) else {
             return vec![];
         };
         paths
@@ -145,7 +144,7 @@ impl TryFrom<PathBuf> for Brick {
 }
 
 /// Get all bricks in a directory
-pub fn bricks_in_dir(dir: &PathBuf) -> Vec<Brick> {
+pub fn bricks_in_dir(dir: &Path) -> Vec<Brick> {
     debug!("{:#?}", sub_dirs(dir));
     let Ok(dirs) = sub_dirs(dir) else {
         return vec![];

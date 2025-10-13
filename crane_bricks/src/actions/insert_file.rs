@@ -54,10 +54,7 @@ impl ExecuteAction for InsertFileAction {
     ) -> anyhow::Result<()> {
         let mut files = brick.files();
         if !&self.common.sources.is_empty() {
-            files = files
-                .into_iter()
-                .filter(|file| *&self.common.sources.contains(&file.name().to_string()))
-                .collect();
+            files.retain(|file| self.common.sources.contains(&file.name().to_string()));
         }
         debug!("{} executing for {} files", brick.name(), files.len());
         if files.len() > 1 {
