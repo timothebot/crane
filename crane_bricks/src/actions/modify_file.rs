@@ -3,6 +3,7 @@ use serde::Deserialize;
 
 use crate::{
     actions::{ExecuteAction, common::Common},
+    brick::BrickFile,
     file_utils::{file_read_content, file_replace_content},
 };
 
@@ -62,12 +63,34 @@ enum ModifyType {
 }
 
 impl ModifyFileAction {
-    pub fn content(&self) -> String {
-        // TODO: Get content from somewhere else if not set
-        self.content.clone().unwrap_or_default()
+    pub fn content(
+        &self,
+        brick: &crate::brick::Brick,
+    ) -> anyhow::Result<String> {
+        let content = self.content.clone().unwrap_or_default();
+        if let Some(file) = content.strip_prefix("file:") {
+            let content_file: Vec<BrickFile> = brick
+                .files()
+                .into_iter()
+                .filter(|f| f.name() == file)
+                .collect();
+            if content_file.len() != 1 {
+                return Err(anyhow!(
+                    "The file '{}' that was defined for taking the content from does not exis, or multiple results found. (Found {})",
+                    file,
+                    content_file.len()
+                ));
+            }
+            return Ok(content_file.first().unwrap().content().to_string());
+        };
+        Ok(content)
     }
 
-    pub fn modify_content(&self, source_text: String) -> anyhow::Result<String> {
+    pub fn modify_content(
+        &self,
+        brick: &crate::brick::Brick,
+        source_text: String,
+    ) -> anyhow::Result<String> {
         // TODO: Handle regex
         // TODO: insert for all or just one?
 
@@ -83,6 +106,8 @@ impl ModifyFileAction {
             info!("Found {} match", locations.len());
         }
 
+        let content = &self.content(brick)?;
+
         let mut output = source_text.clone();
         let start_length = source_text.len();
 
@@ -94,11 +119,11 @@ impl ModifyFileAction {
                 ModifyType::Append => {
                     output.insert_str(
                         (modified_index + selected.len()).max(0),
-                        &self.content(),
+                        &content,
                     );
                 }
                 ModifyType::Prepend => {
-                    output.insert_str(modified_index, &self.content());
+                    output.insert_str(modified_index, &content);
                 }
                 ModifyType::Replace => {
                     // TODO: Something isnt right here but im so tired rn pls
@@ -110,11 +135,11 @@ impl ModifyFileAction {
                         output.len()
                     );
                     if modified_index > output.len() {
-                        output.insert_str(output.len(), &self.content());
+                        output.insert_str(output.len(), &content);
                     } else {
                         output.replace_range(
                             modified_index..(modified_index + selected.len()),
-                            &self.content(),
+                            &content,
                         );
                     }
                 }
@@ -142,12 +167,7 @@ impl ExecuteAction for ModifyFileAction {
         brick: &crate::brick::Brick,
         cwd: &std::path::Path,
     ) -> anyhow::Result<()> {
-        let mut files: Vec<String> = brick
-            .files()
-            .iter()
-            .map(|brick_file| brick_file.name().to_string())
-            .collect();
-        files.extend(self.common.sources.clone());
+        let files: Vec<String> = self.common.sources.clone();
         for file in files {
             let target_path = cwd.join(file);
             if !target_path.exists() {
@@ -155,7 +175,11 @@ impl ExecuteAction for ModifyFileAction {
             }
             info!("Modifying file '{}'", target_path.display());
             let content = file_read_content(context, &target_path)?;
-            file_replace_content(context, &target_path, &self.modify_content(content)?)?;
+            file_replace_content(
+                context,
+                &target_path,
+                &self.modify_content(brick, content)?,
+            )?;
         }
         Ok(())
     }

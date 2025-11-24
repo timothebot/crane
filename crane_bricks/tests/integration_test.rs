@@ -141,6 +141,23 @@ fn test_modify_replace() {
 }
 
 #[test]
+fn test_modify_with_file_content() {
+    init_logger();
+
+    let brick = Brick::try_from(brick_dir("modify_with_file_content")).unwrap();
+
+    let tmpdir = tempfile::tempdir().unwrap();
+    add_test_data(tmpdir.path(), "Test.toml");
+    let ctx = ActionContext { dry_run: false };
+
+    brick.execute(&ctx, tmpdir.path()).unwrap();
+    let res_content = file_content(&tmpdir.path().join("Test.toml"));
+    debug!("{}", res_content);
+    assert!(!res_content.contains("[dependencies]"));
+    assert!(res_content.contains("NEW_CONTENT\n"));
+}
+
+#[test]
 fn test_command() {
     init_logger();
 
