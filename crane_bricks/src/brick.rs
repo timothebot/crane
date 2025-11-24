@@ -9,7 +9,7 @@ use serde::Deserialize;
 use crate::{
     actions::{Action, ExecuteAction, insert_file::InsertFileAction},
     context::ActionContext,
-    file_utils::{sub_dirs, sub_paths},
+    file_utils::{all_file_paths, sub_dirs},
 };
 
 const BRICK_CONFIG_FILE: &str = "brick.toml";
@@ -100,15 +100,20 @@ impl Brick {
         Ok(())
     }
 
-    /// Returns a list of all files that
+    /// Returns a list of all files that are in the brick dir
     pub fn files(&self) -> Vec<BrickFile> {
-        let Ok(paths) = sub_paths(self.path()) else {
+        let Ok(paths) = all_file_paths(self.path()) else {
             return vec![];
         };
+
+        let brick_path = format!("{}/", self.path().display());
         paths
             .iter()
             .filter_map(|path| {
-                let name = path.file_name()?.display().to_string();
+                let name = path
+                    .display()
+                    .to_string()
+                    .replace(&brick_path, "");
                 if !path.is_file() || name == BRICK_CONFIG_FILE {
                     return None;
                 }
