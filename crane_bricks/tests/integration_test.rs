@@ -61,6 +61,22 @@ fn test_insert_file() {
 }
 
 #[test]
+fn test_insert_files_with_sub() {
+    init_logger();
+
+    let brick = Brick::try_from(brick_dir("insert_multiple_with_subfolder")).unwrap();
+    debug!("{:?}", brick);
+
+    let ctx = ActionContext { dry_run: false };
+    let tmpdir = tempfile::tempdir().unwrap();
+    brick.execute(&ctx, tmpdir.path()).unwrap();
+    assert!(tmpdir.path().join("TEST_C1").exists());
+    assert!(tmpdir.path().join("sub/TEST_C2").exists());
+    assert!(!tmpdir.path().join("TEST_DONT").exists());
+    assert!(!tmpdir.path().join("brick.toml").exists());
+}
+
+#[test]
 fn test_without_config() {
     init_logger();
 

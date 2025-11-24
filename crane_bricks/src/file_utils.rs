@@ -1,5 +1,5 @@
 use std::{
-    fs::{self, File},
+    fs::{self, File, create_dir_all},
     io::{self, Write},
     path::{Path, PathBuf},
 };
@@ -15,7 +15,27 @@ pub fn sub_dirs(dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
         .collect::<Vec<PathBuf>>())
 }
 
-/// Get a vec of all files and folders in the given dir if valid
+/// Returns the path to every file located in the given dir, including
+/// paths in subdirectories
+pub fn all_file_paths(dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
+    let dir = PathBuf::from(shellexpand::tilde(&dir.display().to_string()).to_string());
+    if !dir.exists() || !dir.is_dir() {
+        return Err(anyhow!("Target does not exist or not a directory"));
+    }
+    let mut paths: Vec<PathBuf> = Vec::new();
+    if let Ok(children) = sub_paths(dir.as_path()) {
+        for path in children {
+            if path.is_dir() {
+                paths.append(&mut all_file_paths(path.as_path()).unwrap());
+            } else if path.is_file() {
+                paths.push(path);
+            }
+        }
+    }
+    Ok(paths)
+}
+
+/// Returns a vec of all files and folders in the given dir (without subdirs) if valid
 pub fn sub_paths(dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
     let dir = PathBuf::from(shellexpand::tilde(&dir.display().to_string()).to_string());
     if !dir.exists() || !dir.is_dir() {
@@ -32,11 +52,23 @@ pub fn file_create_new(
     path: &Path,
     content: Option<String>,
 ) -> anyhow::Result<()> {
-    if !ctx.dry_run {
-        debug!("Creating new file '{:?}'", path);
-        let mut file = File::create_new(path)?;
-        file.write_all(content.unwrap_or_default().as_bytes())?;
+    if ctx.dry_run {
+        return Ok(());
     }
+    debug!("Creating new file '{:?}'", path);
+    if let Some(parent_dir) = path.parent() {
+        if !parent_dir.exists() {
+            debug!("Adding all missing parent dir(s).");
+            match create_dir_all(parent_dir) {
+                Ok(_) => {},
+                Err(_) => return Err(anyhow!("Couldn't create parent dir(s)!")),
+            }
+        }
+    } else {
+        debug!("Parent dirs exists");
+    }
+    let mut file = File::create_new(path)?;
+    file.write_all(content.unwrap_or_default().as_bytes())?;
     Ok(())
 }
 
