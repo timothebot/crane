@@ -20,6 +20,18 @@ impl Run for List {
             &config.brick_dirs().to_vec()
         };
 
+        if self.no_format {
+            for brick_dir in brick_dirs {
+                for brick in bricks_in_dir(brick_dir) {
+                    println!("{}", brick.name());
+                }
+            }
+            for alias in config.alias() {
+                println!("{}", alias.name());
+            }
+            return;
+        }
+
         let alias_mapped = map_aliases(config.alias());
 
         for brick_dir in brick_dirs {

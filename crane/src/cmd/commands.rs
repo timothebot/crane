@@ -3,6 +3,8 @@ use std::path::PathBuf;
 use clap::{Parser, Subcommand, ValueHint};
 use clap_verbosity::{InfoLevel, Verbosity};
 
+use crate::shell::Shell;
+
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
 pub struct CraneCli {
@@ -17,6 +19,7 @@ pub struct CraneCli {
 pub enum CraneCommand {
     Add(Add),
     List(List),
+    Completion(Completion),
 }
 
 /// Add a brick to your directory
@@ -35,9 +38,18 @@ pub struct Add {
     pub dry_run: bool,
 }
 
+#[derive(Debug, Parser)]
+pub struct Completion {
+    #[clap(required = true)]
+    pub shell: Shell,
+}
+
 /// List all available bricks
 #[derive(Debug, Parser, Clone)]
 pub struct List {
     #[arg(short, long, value_hint=ValueHint::DirPath, value_terminator=",")]
     pub brick_dirs: Option<Vec<PathBuf>>,
+
+    #[arg(long)]
+    pub no_format: bool,
 }

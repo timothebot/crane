@@ -5,6 +5,7 @@ use crate::cmd::{CraneCli, Run};
 mod cmd;
 mod config;
 mod logging;
+mod shell;
 
 fn main() {
     let cli = CraneCli::parse();

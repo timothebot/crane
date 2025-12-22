@@ -1,5 +1,6 @@
 mod add;
 mod commands;
+mod completion;
 mod list;
 
 pub use crate::cmd::commands::*;
@@ -13,6 +14,7 @@ impl Run for CraneCli {
         match &self.command {
             CraneCommand::Add(cmd) => cmd.run(),
             CraneCommand::List(cmd) => cmd.run(),
+            CraneCommand::Completion(cmd) => cmd.run(),
         }
     }
 }
