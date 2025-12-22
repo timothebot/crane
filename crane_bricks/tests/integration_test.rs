@@ -139,7 +139,6 @@ fn test_modify_prepend() {
     assert!(res_content.contains("serde = \"1\"\n[dependencies]"))
 }
 
-
 #[test]
 fn test_modify_prepend_regex() {
     init_logger();

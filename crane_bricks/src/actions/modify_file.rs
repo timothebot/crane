@@ -70,26 +70,15 @@ fn modify_content_using_regex(
     modify_type: &ModifyType,
 ) -> anyhow::Result<String> {
     let re = Regex::new(selector)?;
-    return match modify_type {
+    match modify_type {
         ModifyType::Append => Ok(re
-            .replace_all(
-                &source_text,
-                format!("$0{}", content)
-            )
+            .replace_all(&source_text, format!("$0{}", content))
             .to_string()),
         ModifyType::Prepend => Ok(re
-            .replace_all(
-                &source_text,
-                format!("{}$0", content)
-            )
+            .replace_all(&source_text, format!("{}$0", content))
             .to_string()),
-        ModifyType::Replace => Ok(re
-            .replace_all(
-                &source_text,
-                content
-            )
-            .to_string()),
-    };
+        ModifyType::Replace => Ok(re.replace_all(&source_text, content).to_string()),
+    }
 }
 
 impl ModifyFileAction {
@@ -154,10 +143,10 @@ impl ModifyFileAction {
             let modified_index = index + output.len().abs_diff(start_length);
             match &self.r#type {
                 ModifyType::Append => {
-                    output.insert_str((modified_index + selected.len()).max(0), &content);
+                    output.insert_str((modified_index + selected.len()).max(0), content);
                 }
                 ModifyType::Prepend => {
-                    output.insert_str(modified_index, &content);
+                    output.insert_str(modified_index, content);
                 }
                 ModifyType::Replace => {
                     debug!(
@@ -166,11 +155,11 @@ impl ModifyFileAction {
                         (modified_index + selected.len()).max(0)
                     );
                     if modified_index > output.len() {
-                        output.insert_str(output.len(), &content);
+                        output.insert_str(output.len(), content);
                     } else {
                         output.replace_range(
                             modified_index..(modified_index + selected.len()),
-                            &content,
+                            content,
                         );
                     }
                 }

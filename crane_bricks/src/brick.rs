@@ -110,10 +110,7 @@ impl Brick {
         paths
             .iter()
             .filter_map(|path| {
-                let name = path
-                    .display()
-                    .to_string()
-                    .replace(&brick_path, "");
+                let name = path.display().to_string().replace(&brick_path, "");
                 if !path.is_file() || name == BRICK_CONFIG_FILE {
                     return None;
                 }
