@@ -84,8 +84,8 @@ Allows you to run a command or a script file.
 [[actions]]
 action = "run_command"
 
-command = "echo 'hi'" # command or a script file (prefix with file:)
+command = "echo 'hi'"
 ```
 
 This is by far the most simple yet powerful action.
-If you need more complex behaviour, you can add a custom script that does what you need.
+If you need more complex behavior, you can add a custom script that does what you need.
