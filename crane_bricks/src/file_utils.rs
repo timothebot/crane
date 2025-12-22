@@ -60,7 +60,7 @@ pub fn file_create_new(
         if !parent_dir.exists() {
             debug!("Adding all missing parent dir(s).");
             match create_dir_all(parent_dir) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(_) => return Err(anyhow!("Couldn't create parent dir(s)!")),
             }
         }
