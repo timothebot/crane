@@ -108,6 +108,22 @@ fn test_modify_append() {
 }
 
 #[test]
+fn test_modify_append_with_regex() {
+    init_logger();
+
+    let brick = Brick::try_from(brick_dir("modify_append_regex")).unwrap();
+
+    let tmpdir = tempfile::tempdir().unwrap();
+    add_test_data(tmpdir.path(), "Test.toml");
+    let ctx = ActionContext { dry_run: false };
+
+    brick.execute(&ctx, tmpdir.path()).unwrap();
+    let res_content = file_content(&tmpdir.path().join("Test.toml"));
+    debug!("{}", res_content);
+    assert!(res_content.contains("[dependencies]\nserde = \"1\"\n"))
+}
+
+#[test]
 fn test_modify_prepend() {
     init_logger();
 
@@ -123,8 +139,43 @@ fn test_modify_prepend() {
     assert!(res_content.contains("serde = \"1\"\n[dependencies]"))
 }
 
+
+#[test]
+fn test_modify_prepend_regex() {
+    init_logger();
+
+    let brick = Brick::try_from(brick_dir("modify_prepend_regex")).unwrap();
+
+    let tmpdir = tempfile::tempdir().unwrap();
+    add_test_data(tmpdir.path(), "Test.toml");
+    let ctx = ActionContext { dry_run: false };
+
+    brick.execute(&ctx, tmpdir.path()).unwrap();
+    let res_content = file_content(&tmpdir.path().join("Test.toml"));
+    debug!("{}", res_content);
+    assert!(res_content.contains("# This is group dependencies\n[dependencies]"));
+    assert!(res_content.contains("# This is group package\n[package]"));
+}
+
 #[test]
 fn test_modify_replace() {
+    init_logger();
+
+    let brick = Brick::try_from(brick_dir("modify_replace")).unwrap();
+
+    let tmpdir = tempfile::tempdir().unwrap();
+    add_test_data(tmpdir.path(), "Test.toml");
+    let ctx = ActionContext { dry_run: false };
+
+    brick.execute(&ctx, tmpdir.path()).unwrap();
+    let res_content = file_content(&tmpdir.path().join("Test.toml"));
+    debug!("{}", res_content);
+    assert!(!res_content.contains("[dependencies]"));
+    assert!(res_content.contains("[dev-dependencies]"));
+}
+
+#[test]
+fn test_modify_replace_regex() {
     init_logger();
 
     let brick = Brick::try_from(brick_dir("modify_replace")).unwrap();

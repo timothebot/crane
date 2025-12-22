@@ -1,0 +1,8 @@
+name = "test"
+
+[[actions]]
+sources = ["Test.toml"]
+action = "modify_file"
+type = "prepend"
+content = "# This is group $group\n"
+selector = "regex:\\[(?<group>[a-z]+)\\]"
