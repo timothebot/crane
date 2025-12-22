@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::{Parser, Subcommand, ValueHint, command};
+use clap::{Parser, Subcommand, ValueHint};
 use clap_verbosity::{InfoLevel, Verbosity};
 
 #[derive(Debug, Parser)]
