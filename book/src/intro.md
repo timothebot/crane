@@ -14,7 +14,7 @@ Instead of having to look up and copy your desired license from the web, you can
 
 You can create multiple bricks and combine them behind an alias.
 
-This way, you can easily bootstrap new projects! 
+This way, you can easily bootstrap new projects!
 
 ```shell
 $ cargo new my_project && cd my_project
