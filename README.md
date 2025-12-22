@@ -15,3 +15,4 @@ executes or lines getting replaced in a target file.
 - [ ] Path support
 - [ ] Improve readme
 - [ ] Variables support
+  - [ ] Input variables (ask for variable or command or something)
