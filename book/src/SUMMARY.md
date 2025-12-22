@@ -1,6 +1,8 @@
 # Summary
 
 - [Introduction](./intro.md)
+- [Set Up](./setup.md)
+- [Frequently Asked Questions](./faq.md)
 
 # User Guide
 
