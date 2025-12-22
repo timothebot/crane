@@ -1,16 +1,22 @@
+use std::fmt::Display;
+
 use clap::ValueEnum;
 
 #[derive(ValueEnum, Debug, Clone, Copy)]
 pub enum Shell {
-    BASH,
-    ZSH,
-    FISH,
+    Bash,
+    Zsh,
+    Fish,
 }
 
-impl ToString for Shell {
-    fn to_string(&self) -> String {
-        match self {
-            Shell::BASH => r#"
+impl Display for Shell {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(
+            f,
+            "{}",
+            match self {
+                Shell::Bash =>
+                    r#"
 # START generated crane shell config
 _crane() {
     local cur
@@ -29,7 +35,8 @@ _crane() {
 }
 complete -F _crane crane
 # END generated crane shell config"#,
-            Shell::ZSH => r#"
+                Shell::Zsh =>
+                    r#"
 # START generated crane shell config
 _crane() {
   local -a subcmds add_args
@@ -50,7 +57,8 @@ _crane() {
 }
 compdef _crane crane
 # END generated crane shell config"#,
-            Shell::FISH => r#"
+                Shell::Fish =>
+                    r#"
 # START generated crane shell config
 complete -c crane -f -n '__fish_use_subcommand' -a list -d 'List bricks'
 complete -c crane -f -n '__fish_use_subcommand' -a add -d 'Add bricks'
@@ -58,7 +66,7 @@ complete -c crane -f -n '__fish_use_subcommand' -a completions -d 'Generate shel
 complete -c crane -f -n '__fish_seen_subcommand_from add' \
     -a '(crane list --no-format 2>/dev/null)'
 # END generated crane shell config"#,
-        }
-        .to_string()
+            }
+        )
     }
 }
