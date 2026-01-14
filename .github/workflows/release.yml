@@ -34,7 +34,7 @@ jobs:
         id: get_version
         uses: SebRollen/toml-action@v1.2.0
         with:
-          file: Cargo.toml
+          file: crane/Cargo.toml
           field: package.version
       - name: Install Rust
         uses: actions-rs/toolchain@v1
